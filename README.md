@@ -1,4 +1,4 @@
-# Udacity Project 2: Asteroid Radar
+# Project 2 for Udacity: Asteroid Radar
 
 Asteroid Radar
 
