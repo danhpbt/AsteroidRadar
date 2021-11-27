@@ -1,15 +1,16 @@
 package com.udacity.asteroidradar.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.app.Application
+import androidx.lifecycle.*
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.BuildConfig
 import com.udacity.asteroidradar.Constants
+import com.udacity.asteroidradar.PictureOfDay
 import com.udacity.asteroidradar.api.NasaApi
-import com.udacity.asteroidradar.api.NasaApiStatus
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
+import com.udacity.asteroidradar.database.getDatabase
+import com.udacity.asteroidradar.repository.AsteriodsRepository
+import com.udacity.asteroidradar.viewmodel.AsteroidRadarViewModel
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.text.SimpleDateFormat
@@ -17,60 +18,72 @@ import java.util.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import timber.log.Timber
 
-class MainViewModel : ViewModel() {
-    private val _status = MutableLiveData<NasaApiStatus>()
-    val status: LiveData<NasaApiStatus>
-        get() = _status
+enum class Filter { TODAY, WEEK, SAVED }
 
-    private val _asteroids = MutableLiveData<List<Asteroid>>()
-    val asteroids: LiveData<List<Asteroid>>
-        get() = _asteroids
+class MainViewModel(application: Application) :  AndroidViewModel(application) {
 
     private val _navigateToSelectedAsteroid = MutableLiveData<Asteroid>()
     val navigateToSelectedAsteroid: LiveData<Asteroid>
         get() = _navigateToSelectedAsteroid
 
-    init {
-        var calendar = Calendar.getInstance();
-        val startDate = calendar.time;
+    private val _pictureOfDay = MutableLiveData<PictureOfDay>()
+    val pictureOfDay: LiveData<PictureOfDay>
+        get() = _pictureOfDay
 
-        calendar.add(Calendar.DATE, 7)
-        var endDate = calendar.time
+    private val _filter = MutableLiveData(Filter.WEEK)
 
-        val sdf = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT)
-        val startDateStr = sdf.format(startDate)
-        val endDateStr = sdf.format(endDate)
+    val asteroids = Transformations.switchMap(_filter) {
+/*        when (it) {
+            *//*Filter.TODAY -> asteroidRepository.todaysAsteroids
+            Filter.WEEK -> asteroidRepository.weeksAsteroids
+            else -> asteroidRepository.asteroids*//*
 
-        getAsteroids(startDateStr, endDateStr, BuildConfig.NASA_API_KEY)
+            asteriodsRepository.asteriods
+        }*/
+        asteriodsRepository.asteriods
     }
 
-    //private fun getAsteroids(startDate: Date, numEndDays : Int) {
-    private fun getAsteroids(startDate: String, endDate: String, apiKey: String) {
-        _status.value = NasaApiStatus.LOADING
-        NasaApi.retrofitService.getAsteroids(startDate, endDate, apiKey).enqueue( object: Callback<String> {
-            override fun onFailure(call: Call<String>, t: Throwable) {
-                val errVal = t.message
-                _status.value = NasaApiStatus.ERROR
-            }
+    private val database = getDatabase(application)
+    private val asteriodsRepository = AsteriodsRepository(database)
 
-            override fun onResponse(call: Call<String>, response: Response<String>) {
-                val resVal = response.body()
-                val jsonObj = JSONObject(resVal)
-                _asteroids.value = parseAsteroidsJsonResult(jsonObj)
-                _status.value = NasaApiStatus.DONE
-            }
-        })
 
-/*        viewModelScope.launch {
-            _status.value = NasaApiStatus.LOADING
+    init {
+        getAsteroids()
+        getPictureOfDay();
+
+    }
+
+    fun getAsteroids()
+    {
+        viewModelScope.launch {
             try {
-                //_asteroids.value = MarsApi.retrofitService.getProperties(filter.value)
-                _status.value = NasaApiStatus.DONE
+                asteriodsRepository.refreshAsteriods()
             } catch (e: Exception) {
-                _status.value = NasaApiStatus.ERROR
-                _asteroids.value = ArrayList()
+                Timber.d(e.message)
             }
-        }*/
+        }
+    }
+
+    fun getPictureOfDay()
+    {
+        viewModelScope.launch {
+            try {
+                _pictureOfDay.value = NasaApi.retrofitService.getPictureOfDay()
+            } catch (e: Exception) {
+                Timber.d(e.message)
+            }
+        }
+    }
+
+    class Factory(val app: Application) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return MainViewModel(app) as T
+            }
+            throw IllegalArgumentException("Unable to construct viewmodel")
+        }
     }
 }

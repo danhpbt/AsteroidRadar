@@ -4,6 +4,8 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.udacity.asteroidradar.BuildConfig
 import com.udacity.asteroidradar.Constants
+import com.udacity.asteroidradar.PictureOfDay
+import kotlinx.coroutines.Deferred
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
@@ -38,24 +40,36 @@ private val httpClient: OkHttpClient by lazy{
 
 private val retrofit = Retrofit.Builder()
     //.addConverterFactory(MoshiConverterFactory.create(moshi))
-    .addConverterFactory(ScalarsConverterFactory.create())
+    //.addConverterFactory(ScalarsConverterFactory.create())
+    .addConverterFactory(
+        AnnotatedConverterFactory.Builder()
+            .add(AnnotatedConverterFactory.Json::class, MoshiConverterFactory.create(moshi))
+            .add(AnnotatedConverterFactory.Scalar::class, ScalarsConverterFactory.create())
+            .build())
     .baseUrl(Constants.BASE_URL)
     .client(httpClient)
     .build()
 
 interface NasaApiService {
     //https://api.nasa.gov/neo/rest/v1/feed?start_date=2015-09-07&end_date=2015-09-08&api_key=DEMO_KEY
-    //suspend
     @GET("neo/rest/v1/feed")
+    @AnnotatedConverterFactory.Scalar
     fun getAsteroids(@Query("start_date") startDate: String,
                               @Query("end_date") endDate: String,
-                              @Query("api_key") apiKey: String): Call<String>
+                              @Query("api_key") apiKey: String = BuildConfig.NASA_API_KEY): String
 
+    /*@GET("neo/rest/v1/feed")
+    @AnnotatedConverterFactory.Scalar
+    fun refreshAsteroids(@Query("start_date") startDate: String,
+                     @Query("end_date") endDate: String,
+                     @Query("api_key") apiKey: String = BuildConfig.NASA_API_KEY): Deferred<NetworkAsteroidContainer>
+*/
     //https://api.nasa.gov/planetary/apod?api_key=YOUR_API_KEY
+    @GET("planetary/apod")
+    @AnnotatedConverterFactory.Json
+    fun getPictureOfDay(@Query("api_key") apiKey: String = BuildConfig.NASA_API_KEY) : PictureOfDay
 
 }
-
-enum class NasaApiStatus { LOADING, ERROR, DONE }
 
 object NasaApi {
     val retrofitService : NasaApiService by lazy { retrofit.create(NasaApiService::class.java) }

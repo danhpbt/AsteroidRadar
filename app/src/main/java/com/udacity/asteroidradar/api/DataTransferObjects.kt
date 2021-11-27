@@ -2,10 +2,16 @@ package com.udacity.asteroidradar.api
 import com.squareup.moshi.JsonClass
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.database.DatabaseAsteroid
+import org.json.JSONObject
 import java.util.*
 
 @JsonClass(generateAdapter = true)
 data class NetworkAsteroidContainer(val asteroids: List<NetworkAsteroid>)
+
+fun scalar2NetworkAsteroids(asteroidScalar: String): NetworkAsteroidContainer {
+    var asteroidJson = JSONObject(asteroidScalar)
+    return parseNetworkAsteroidsJsonResult(asteroidJson)
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkAsteroid(
