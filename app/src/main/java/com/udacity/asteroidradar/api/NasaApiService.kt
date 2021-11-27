@@ -56,7 +56,7 @@ interface NasaApiService {
     @AnnotatedConverterFactory.Scalar
     fun getAsteroids(@Query("start_date") startDate: String,
                               @Query("end_date") endDate: String,
-                              @Query("api_key") apiKey: String = BuildConfig.NASA_API_KEY): String
+                              @Query("api_key") apiKey: String = BuildConfig.NASA_API_KEY): Call<String>
 
     /*@GET("neo/rest/v1/feed")
     @AnnotatedConverterFactory.Scalar

@@ -12,6 +12,8 @@ import com.udacity.asteroidradar.database.AsteroidsDatabase
 import com.udacity.asteroidradar.database.asDomainModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.await
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -27,16 +29,17 @@ class AsteriodsRepository(private val database: AsteroidsDatabase) {
             var calendar = Calendar.getInstance();
             val startDate = calendar.time;
 
-            calendar.add(Calendar.DATE, 7)
+            calendar.add(Calendar.DATE, Constants.DEFAULT_END_DATE_DAYS)
             var endDate = calendar.time
 
             var sdf = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT)
             var startDateStr = sdf.format(startDate)
             var endDateStr = sdf.format(endDate)
 
-            val rawData = NasaApi.retrofitService.getAsteroids(startDateStr, endDateStr)
+            val rawData = NasaApi.retrofitService.getAsteroids(startDateStr, endDateStr).await()
             var asteroidList = scalar2NetworkAsteroids(rawData)
             database.asteroidDao.insertAll(*asteroidList.asDatabaseModel())
+
         }
     }
 }
