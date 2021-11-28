@@ -16,15 +16,12 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import java.util.concurrent.TimeUnit
 
-private val moshi = Moshi.Builder()
-    .add(KotlinJsonAdapterFactory())
-    .build()
-
 //check log in debug under okhttp
 private val httpLoggingInterceptor: HttpLoggingInterceptor by lazy{
     val httpLoggingInterceptor1 = HttpLoggingInterceptor()
     httpLoggingInterceptor1.apply {
-        httpLoggingInterceptor1.level = HttpLoggingInterceptor.Level.BODY
+        if (BuildConfig.DEBUG)
+            httpLoggingInterceptor1.level = HttpLoggingInterceptor.Level.BODY
     }
 }
 
@@ -38,9 +35,11 @@ private val httpClient: OkHttpClient by lazy{
         .build()
 }
 
+private val moshi = Moshi.Builder()
+    .add(KotlinJsonAdapterFactory())
+    .build()
+
 private val retrofit = Retrofit.Builder()
-    //.addConverterFactory(MoshiConverterFactory.create(moshi))
-    //.addConverterFactory(ScalarsConverterFactory.create())
     .addConverterFactory(
         AnnotatedConverterFactory.Builder()
             .add(AnnotatedConverterFactory.Json::class, MoshiConverterFactory.create(moshi))
@@ -58,12 +57,6 @@ interface NasaApiService {
                               @Query("end_date") endDate: String,
                               @Query("api_key") apiKey: String = BuildConfig.NASA_API_KEY): Call<String>
 
-    /*@GET("neo/rest/v1/feed")
-    @AnnotatedConverterFactory.Scalar
-    fun refreshAsteroids(@Query("start_date") startDate: String,
-                     @Query("end_date") endDate: String,
-                     @Query("api_key") apiKey: String = BuildConfig.NASA_API_KEY): Deferred<NetworkAsteroidContainer>
-*/
     //https://api.nasa.gov/planetary/apod?api_key=YOUR_API_KEY
     @GET("planetary/apod")
     @AnnotatedConverterFactory.Json

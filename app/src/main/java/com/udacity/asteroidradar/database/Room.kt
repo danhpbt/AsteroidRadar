@@ -39,7 +39,7 @@ interface AsteroidDao {
     fun deletePrevAsteroids(): Int
 }
 
-@Database(entities = [DatabaseAsteroid::class], version = 1)
+@Database(entities = [DatabaseAsteroid::class], version = 1, exportSchema = false)
 abstract class AsteroidsDatabase : RoomDatabase() {
     abstract val asteroidDao: AsteroidDao
 }
