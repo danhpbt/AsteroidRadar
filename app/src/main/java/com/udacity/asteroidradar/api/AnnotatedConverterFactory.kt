@@ -4,11 +4,7 @@ import retrofit2.Converter
 import kotlin.reflect.KClass
 import okhttp3.ResponseBody
 import retrofit2.Retrofit
-import java.lang.annotation.RetentionPolicy
 import java.lang.reflect.Type
-import okhttp3.RequestBody
-
-
 
 
 //https://stackoverflow.com/questions/40824122/android-retrofit-2-multiple-converters-gson-simplexml-error

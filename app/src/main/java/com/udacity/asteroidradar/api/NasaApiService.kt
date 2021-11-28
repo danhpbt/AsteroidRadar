@@ -5,7 +5,6 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.udacity.asteroidradar.BuildConfig
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.PictureOfDay
-import kotlinx.coroutines.Deferred
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call

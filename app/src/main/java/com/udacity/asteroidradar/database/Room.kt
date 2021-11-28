@@ -3,7 +3,6 @@ package com.udacity.asteroidradar.database
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import java.util.*
 
 
 //SQLite Date And Time Functions
@@ -14,7 +13,7 @@ import java.util.*
 
 @Dao
 interface AsteroidDao {
-    @Query("SELECT * FROM databaseasteroid")
+    @Query("SELECT * FROM databaseasteroid ORDER BY closeApproachDate ASC")
     fun getAsteroids(): LiveData<List<DatabaseAsteroid>>
 
     @Query("""

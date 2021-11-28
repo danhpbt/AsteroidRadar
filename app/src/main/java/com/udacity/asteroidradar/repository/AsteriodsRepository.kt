@@ -1,21 +1,17 @@
 package com.udacity.asteroidradar.repository
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.udacity.asteroidradar.Asteroid
-import com.udacity.asteroidradar.BuildConfig
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.api.NasaApi
 import com.udacity.asteroidradar.api.asDatabaseModel
 import com.udacity.asteroidradar.api.scalar2NetworkAsteroids
 import com.udacity.asteroidradar.database.AsteroidsDatabase
 import com.udacity.asteroidradar.database.asDomainModel
-import com.udacity.asteroidradar.main.Filter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.await
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 

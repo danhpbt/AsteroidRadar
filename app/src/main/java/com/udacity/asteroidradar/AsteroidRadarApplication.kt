@@ -15,7 +15,7 @@ class AsteroidRadarApplication : Application() {
 
     private fun delayedInit() {
         applicationScope.launch {
-            //setupRecurringWork()
+            setupRecurringWork()
         }
     }
 
