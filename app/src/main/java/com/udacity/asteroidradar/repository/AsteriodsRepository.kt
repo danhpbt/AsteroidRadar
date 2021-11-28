@@ -1,6 +1,7 @@
 package com.udacity.asteroidradar.repository
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.BuildConfig
@@ -10,6 +11,7 @@ import com.udacity.asteroidradar.api.asDatabaseModel
 import com.udacity.asteroidradar.api.scalar2NetworkAsteroids
 import com.udacity.asteroidradar.database.AsteroidsDatabase
 import com.udacity.asteroidradar.database.asDomainModel
+import com.udacity.asteroidradar.main.Filter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.await
@@ -21,6 +23,16 @@ class AsteriodsRepository(private val database: AsteroidsDatabase) {
 
     val asteriods: LiveData<List<Asteroid>> =
         Transformations.map(database.asteroidDao.getAsteroids()) {
+            it.asDomainModel()
+        }
+
+    var asteriodsToday: LiveData<List<Asteroid>> =
+        Transformations.map(database.asteroidDao.getTodayAsteroids()) {
+            it.asDomainModel()
+        }
+
+    var asteriodsWeek: LiveData<List<Asteroid>> =
+        Transformations.map(database.asteroidDao.getWeekAsteroids()) {
             it.asDomainModel()
         }
 
@@ -40,6 +52,12 @@ class AsteriodsRepository(private val database: AsteroidsDatabase) {
             var asteroidList = scalar2NetworkAsteroids(rawData)
             database.asteroidDao.insertAll(*asteroidList.asDatabaseModel())
 
+        }
+    }
+
+    suspend fun deletePrevAsteroids() {
+        withContext(Dispatchers.IO) {
+            database.asteroidDao.deletePrevAsteroids()
         }
     }
 }

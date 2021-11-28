@@ -9,7 +9,7 @@ import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.databinding.ItemAsteroidListBinding
 
-class AsteroidAdapter : RecyclerView.Adapter<AsteroidViewHolder>(){
+class AsteroidAdapter(val callback: AsteroidClick) : RecyclerView.Adapter<AsteroidViewHolder>(){
 
     var asteroids: List<Asteroid> = emptyList()
         set(value) {
@@ -32,7 +32,7 @@ class AsteroidAdapter : RecyclerView.Adapter<AsteroidViewHolder>(){
     override fun onBindViewHolder(holder: AsteroidViewHolder, position: Int) {
         holder.viewDataBinding.also {
             it.asteroid =asteroids[position]
-            //it.videoCallback = callback
+            it.asteroidCallback = callback
         }
     }
 
@@ -40,6 +40,12 @@ class AsteroidAdapter : RecyclerView.Adapter<AsteroidViewHolder>(){
         return asteroids.size
     }
 }
+
+class AsteroidClick(val block: (Asteroid) -> Unit) {
+
+    fun onClick(asteroid: Asteroid) = block(asteroid)
+}
+
 
 class AsteroidViewHolder(val viewDataBinding: ItemAsteroidListBinding) :
     RecyclerView.ViewHolder(viewDataBinding.root) {

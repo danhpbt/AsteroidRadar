@@ -19,6 +19,7 @@ class RefreshDataWorker(appContext: Context, params: WorkerParameters):
         val repository = AsteriodsRepository(database)
         return try {
             repository.refreshAsteriods()
+            repository.deletePrevAsteroids()
             Result.success()
         } catch (e: HttpException) {
             Result.retry()

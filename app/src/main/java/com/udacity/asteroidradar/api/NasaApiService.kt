@@ -67,7 +67,7 @@ interface NasaApiService {
     //https://api.nasa.gov/planetary/apod?api_key=YOUR_API_KEY
     @GET("planetary/apod")
     @AnnotatedConverterFactory.Json
-    fun getPictureOfDay(@Query("api_key") apiKey: String = BuildConfig.NASA_API_KEY) : PictureOfDay
+    fun getPictureOfDay(@Query("api_key") apiKey: String = BuildConfig.NASA_API_KEY) : Call<PictureOfDay>
 
 }
 

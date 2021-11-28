@@ -46,14 +46,6 @@ class AnnotatedConverterFactory(val factories: Map<KClass<*>, Converter.Factory>
         val factories: LinkedHashMap<KClass<*>, Converter.Factory> = LinkedHashMap()
 
         fun add(cls: KClass<*>, factory: Converter.Factory): Builder {
-            if (cls == null) {
-                throw NullPointerException("cls")
-            }
-
-            if (factory == null) {
-                throw NullPointerException("factory")
-            }
-
             factories[cls] = factory
             return this
         }

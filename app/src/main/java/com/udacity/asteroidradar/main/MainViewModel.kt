@@ -18,15 +18,19 @@ import java.util.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.await
 import timber.log.Timber
 
-enum class Filter { TODAY, WEEK, SAVED }
+enum class Filter { TODAY, WEEK, ALL }
 
 class MainViewModel(application: Application) :  AndroidViewModel(application) {
 
-    private val _navigateToSelectedAsteroid = MutableLiveData<Asteroid>()
-    val navigateToSelectedAsteroid: LiveData<Asteroid>
-        get() = _navigateToSelectedAsteroid
+    private val database = getDatabase(application)
+    private val asteriodsRepository = AsteriodsRepository(database)
+
+//    private val _navigateToSelectedAsteroid = MutableLiveData<Asteroid>()
+//    val navigateToSelectedAsteroid: LiveData<Asteroid>
+//        get() = _navigateToSelectedAsteroid
 
     private val _pictureOfDay = MutableLiveData<PictureOfDay>()
     val pictureOfDay: LiveData<PictureOfDay>
@@ -34,28 +38,26 @@ class MainViewModel(application: Application) :  AndroidViewModel(application) {
 
     private val _filter = MutableLiveData(Filter.WEEK)
 
+
     val asteroids = Transformations.switchMap(_filter) {
-/*        when (it) {
-            *//*Filter.TODAY -> asteroidRepository.todaysAsteroids
-            Filter.WEEK -> asteroidRepository.weeksAsteroids
-            else -> asteroidRepository.asteroids*//*
-
-            asteriodsRepository.asteriods
-        }*/
-        asteriodsRepository.asteriods
+        when (it) {
+            Filter.TODAY -> asteriodsRepository.asteriodsToday
+            Filter.WEEK -> asteriodsRepository.asteriodsWeek
+            else -> asteriodsRepository.asteriods
+        }
     }
-
-    private val database = getDatabase(application)
-    private val asteriodsRepository = AsteriodsRepository(database)
-
 
     init {
-        getAsteroids()
-        getPictureOfDay();
+        requestAsteroids()
+        requestPictureOfDay();
 
     }
 
-    fun getAsteroids()
+    fun setFilter(filter: Filter) {
+        _filter.value = filter
+    }
+
+    fun requestAsteroids()
     {
         viewModelScope.launch {
             try {
@@ -66,16 +68,21 @@ class MainViewModel(application: Application) :  AndroidViewModel(application) {
         }
     }
 
-    fun getPictureOfDay()
+    fun requestPictureOfDay()
     {
         viewModelScope.launch {
             try {
-                _pictureOfDay.value = NasaApi.retrofitService.getPictureOfDay()
+                _pictureOfDay.value = NasaApi.retrofitService.getPictureOfDay().await()
             } catch (e: Exception) {
                 Timber.d(e.message)
             }
         }
     }
+
+//    fun setSelectedAsteroid(asteroid: Asteroid)
+//    {
+//        _navigateToSelectedAsteroid.value = asteroid
+//    }
 
     class Factory(val app: Application) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

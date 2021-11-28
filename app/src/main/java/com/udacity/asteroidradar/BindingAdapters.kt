@@ -4,6 +4,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 
+import com.squareup.picasso.Picasso
+
+
+
+
 @BindingAdapter("statusIcon")
 fun bindAsteroidStatusImage(imageView: ImageView, isHazardous: Boolean) {
     if (isHazardous) {
@@ -38,4 +43,13 @@ fun bindTextViewToKmUnit(textView: TextView, number: Double) {
 fun bindTextViewToDisplayVelocity(textView: TextView, number: Double) {
     val context = textView.context
     textView.text = String.format(context.getString(R.string.km_s_unit_format), number)
+}
+
+@BindingAdapter("imageUrl")
+fun loadImage(view: ImageView, imageUrl: String?) {
+    imageUrl?.let {
+        Picasso.with(view.context)
+            .load(imageUrl)
+            .into(view)
+    }
 }
