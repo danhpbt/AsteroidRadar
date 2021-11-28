@@ -29,8 +29,13 @@ class AsteroidRadarApplication : Application() {
                 }
             }.build()
 
-        val repeatingRequest
-                = PeriodicWorkRequestBuilder<RefreshDataWorker>(1, TimeUnit.DAYS)
+        //Periodic work has a minimum interval of 15 minutes.
+        //Try this code to test
+//        val repeatingRequest = PeriodicWorkRequestBuilder<RefreshDataWorker>(15, TimeUnit.MINUTES)
+//            .setConstraints(constraints)
+//            .build()
+
+        val repeatingRequest = PeriodicWorkRequestBuilder<RefreshDataWorker>(1, TimeUnit.DAYS)
             .setConstraints(constraints)
             .build()
 
