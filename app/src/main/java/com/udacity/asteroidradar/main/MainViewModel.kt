@@ -31,6 +31,10 @@ class MainViewModel(application: Application) :  AndroidViewModel(application) {
         }
     }
 
+    private val _refresh = MutableLiveData<Boolean>()
+    val refresh: LiveData<Boolean>
+    get() = _refresh
+
     init {
         requestAsteroids()
         requestPictureOfDay();
@@ -58,6 +62,23 @@ class MainViewModel(application: Application) :  AndroidViewModel(application) {
                 _pictureOfDay.value = NasaApi.retrofitService.getPictureOfDay().await()
             } catch (e: Exception) {
                 Timber.d(e.message)
+            }
+        }
+    }
+
+    fun requestRefresh()
+    {
+        viewModelScope.launch {
+            try {
+                _refresh.value = true;
+                asteriodsRepository.refreshAsteriods()
+                _pictureOfDay.value = NasaApi.retrofitService.getPictureOfDay().await()
+
+            } catch (e: Exception) {
+                Timber.d(e.message)
+            }
+            finally {
+                _refresh.value = false
             }
         }
     }

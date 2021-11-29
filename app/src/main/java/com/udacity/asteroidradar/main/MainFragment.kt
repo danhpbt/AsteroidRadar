@@ -21,7 +21,6 @@ class MainFragment : Fragment() {
     }
 
     private val asteroidClick = AsteroidClick({
-        //viewModel.setSelectedAsteroid(it)
         findNavController().navigate(MainFragmentDirections.actionShowDetail(it))
     })
 
